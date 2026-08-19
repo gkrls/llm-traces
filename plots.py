@@ -188,9 +188,9 @@ def _draw_sharing(ax, exact, thresholds, bins=20):
 
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
     ax.xaxis.set_major_formatter(PercentFormatter(xmax=1))
-    _style(ax, "fraction of the prompt already computed by an earlier request",
+    _style(ax, "fraction of the prompt seen in some earlier request",
            "share of requests",
-           "the workload alone — how much was already computed?   (no switch, no cache)")
+           "Amount of sharing in the trace")
     ax.legend(frameon=False, fontsize=8, loc="upper right")
 
 
@@ -285,8 +285,8 @@ def run(ids, name, unit=1, unit_name="units", scalings=SCALINGS, n_hashes=N_HASH
     # bucket 1 is the same in every panel -- it is set by base_block alone --
     # so it belongs here, once, and not in each subplot title.
     fig.suptitle(f"{name} — {len(ids):,} requests, {n_hashes} hashes per request, "
-                 f"unit {unit} {unit_name}\n"
-                 f"bucket 1: block {base_block*unit:,} {unit_name}, "
+                 f"trace_unit {unit} {unit_name}\n"
+                 f"bucket 1: hash_block {base_block*unit:,} {unit_name} ({base_block}x trace_unit) , "
                  f"covers prompts to {n_hashes*base_block*unit:,} {unit_name}",
                  x=.005, ha="left", fontsize=13)
     fig.tight_layout(rect=[0, 0, 1, 1 - .6 / height])

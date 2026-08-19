@@ -10,9 +10,9 @@ import json
 import plots
 
 DIR = "traces"
-FILES = {"mooncake_conversation": "traces/mooncake_conversation.jsonl",
-         "mooncake_toolagent":    "traces/mooncake_toolagent.jsonl",
-         "mooncake_synthetic":    "traces/mooncake_synthetic.jsonl"}
+FILES = {"mooncake_conversation": "traces/conversation_trace.jsonl",
+         "mooncake_toolagent":    "traces/toolagent_trace.jsonl",
+         "mooncake_synthetic":    "traces/synthetic_trace.jsonl"}
 
 
 def load(path):

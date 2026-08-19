@@ -20,10 +20,10 @@ import json
 import plots
 
 MASK = (1 << 64) - 1
-FILES = {"qwen-chat":     "traces/qwen_bailian_chat.jsonl",   # to-C interactive chat
-         "qwen-api":      "traces/qwen_bailian_api_task.jsonl",   # to-B API automation
-         "qwen-thinking": "traces/qwen_bailian_think.jsonl",  # reasoning-heavy
-         "qwen-coder":    "traces/qwen_bailian_coder.jsonl"}    # code generation
+FILES = {"qwen-chat":     "traces/qwen_traceA_blksz_16.jsonl",   # to-C interactive chat
+         "qwen-api":      "traces/qwen_traceB_blksz_16.jsonl",   # to-B API automation
+         "qwen-thinking": "traces/qwen_thinking_blksz_16.jsonl",  # reasoning-heavy
+         "qwen-coder":    "traces/qwen_coder_blksz_16.jsonl"}    # code generation
 DIR = "traces"
 
 
@@ -42,6 +42,9 @@ def load(path):
     """-> list of prefix-id lists, in arrival order (the file is time-sorted)."""
     return [chain(json.loads(l)["hash_ids"]) for l in open(path) if l.strip()]
 
+UNIT=16 # tokens
+BASE=1
+NUM_HASHES=32
 
 if __name__ == "__main__":
     for name, file in FILES.items():
@@ -53,10 +56,10 @@ if __name__ == "__main__":
         # base_block=1 -> 16-token blocks, bucket 1 reaches only 256 tokens, so
         # nearly every request buckets and the scheme is genuinely exercised.
         # base_block=32 -> 512-token blocks, i.e. Mooncake's granularity.
-        plots.run(ids, name=name, unit=16, unit_name="tokens",
+        plots.run(ids, name=f"{name}-{NUM_HASHES}x{UNIT * BASE}", unit=UNIT, unit_name="tokens",
                   # x1.5 needs base_block >= 4 (block sizes are whole units,
                   # so a 50% step from 1 unit is not representable). Use base 8
                   # -- 128-token blocks -- if you want a fractional scaling.
-                  scalings=(2, 4), n_hashes=16, base_block=1,
-                  thresholds=(0.50, 0.75, 1.00),
+                  scalings=(2, 3, 4), n_hashes=NUM_HASHES, base_block=BASE,
+                  thresholds=(0.4, 0.5, 0.6),
                   capacities=(100, 1_000, 10_000, 100_000, 1_000_000))

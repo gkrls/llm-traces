@@ -9,14 +9,14 @@ sharing comes from. ShareGPT has no timestamps, so conversations are interleaved
 round-robin by turn (everyone's turn 1, then turn 2, ...), which keeps a turn
 strictly after its predecessor.
 
-    python sharegpt.py traces/sharegpt.json
+    python sharegpt.py traces/ShareGPT_V3_unfiltered_cleaned_split.json
 """
 import hashlib
 import json
 import sys
 import plots
 
-UNIT_BYTES = 64
+UNIT_BYTES = 256
 MAX_CONVS = 20_000
 
 
@@ -45,9 +45,10 @@ def load(path, max_convs=MAX_CONVS, unit=UNIT_BYTES):
                   t += 1
     return [prefix_ids(p, unit) for turn in per_turn for p in turn]
 
+FILE="traces/ShareGPT_V3_unfiltered_cleaned_split.json"
 
 if __name__ == "__main__":
-    plots.run(load("traces/sharegpt.json"), name="sharegpt", unit=UNIT_BYTES, unit_name="bytes",
-              scalings=(2, 3, 4), n_hashes=16,
-              thresholds=(0.50, 0.75, 1.00),
+    plots.run(load(FILE), name=f"sharegpt-{UNIT_BYTES}", unit=UNIT_BYTES, unit_name="bytes",
+              scalings=(2, 3, 4, 5), n_hashes=16,
+              thresholds=(0.4, 0.5, 0.6),
               capacities=(10_000, 100_000, 1_000_000))
