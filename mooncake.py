@@ -20,11 +20,13 @@ def load(path):
     return [json.loads(l)["hash_ids"] for l in open(path) if l.strip()]
 
 
+NUM_HASHES = 16
+UNIT = 512 # tokens
+BASE = 1
+
 if __name__ == "__main__":
     for name, path in FILES.items():
-        plots.run(load(path), name=name, unit=512, unit_name="tokens",
-                  scalings=(2, 3), n_hashes=16,
-                  base_block=1,        # 1 unit = 512 tokens; the trace's floor,
-                                       # so bucket 1 already reaches 8,192 tokens
-                  thresholds=(0.50, 0.75, 1.00),
-                  capacities=(100, 1_000, 10_000, 100_000, 1_000_000))
+        plots.run(load(path), name=f"{name}_{NUM_HASHES}.{UNIT * BASE}", unit=UNIT, unit_name="tokens",
+                  scalings=(2, 3), n_hashes=NUM_HASHES, base_block=1, # 1 unit = 512 tokens; the trace's floor, so bucket 1 already reaches 8,192 tokens
+                  thresholds=(0.4, 0.5, 0.6), coverages=(1.0, 0.75),
+                  capacities=(1_000, 10_000, 100_000, 1_000_000))

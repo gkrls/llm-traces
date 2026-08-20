@@ -20,10 +20,10 @@ import json
 import plots
 
 MASK = (1 << 64) - 1
-FILES = {"qwen-chat":     "traces/qwen_traceA_blksz_16.jsonl",   # to-C interactive chat
-         "qwen-api":      "traces/qwen_traceB_blksz_16.jsonl",   # to-B API automation
-         "qwen-thinking": "traces/qwen_thinking_blksz_16.jsonl",  # reasoning-heavy
-         "qwen-coder":    "traces/qwen_coder_blksz_16.jsonl"}    # code generation
+FILES = {"qwen_chat":     "traces/qwen_traceA_blksz_16.jsonl",   # to-C interactive chat
+         "qwen_api":      "traces/qwen_traceB_blksz_16.jsonl",   # to-B API automation
+         "qwen_thinking": "traces/qwen_thinking_blksz_16.jsonl",  # reasoning-heavy
+         "qwen_coder":    "traces/qwen_coder_blksz_16.jsonl"}    # code generation
 DIR = "traces"
 
 
@@ -44,7 +44,7 @@ def load(path):
 
 UNIT=16 # tokens
 BASE=1
-NUM_HASHES=32
+NUM_HASHES=16
 
 if __name__ == "__main__":
     for name, file in FILES.items():
@@ -56,10 +56,17 @@ if __name__ == "__main__":
         # base_block=1 -> 16-token blocks, bucket 1 reaches only 256 tokens, so
         # nearly every request buckets and the scheme is genuinely exercised.
         # base_block=32 -> 512-token blocks, i.e. Mooncake's granularity.
-        plots.run(ids, name=f"{name}-{NUM_HASHES}x{UNIT * BASE}", unit=UNIT, unit_name="tokens",
+        plots.run(ids, name=f"{name}_{NUM_HASHES}.{UNIT * BASE}", unit=UNIT, unit_name="tokens",
                   # x1.5 needs base_block >= 4 (block sizes are whole units,
                   # so a 50% step from 1 unit is not representable). Use base 8
                   # -- 128-token blocks -- if you want a fractional scaling.
                   scalings=(2, 3, 4), n_hashes=NUM_HASHES, base_block=BASE,
-                  thresholds=(0.4, 0.5, 0.6),
-                  capacities=(100, 1_000, 10_000, 100_000, 1_000_000))
+                  thresholds=(0.4, 0.5, 0.6), coverages=(1.0, 0.75),
+                  capacities=(1_000, 10_000, 100_000, 1_000_000))
+
+        # if __name__ == "__main__":
+        #     for name, path in FILES.items():
+        #         plots.run(load(path), name=f"{name}_{NUM_HASHES}.{UNIT * BASE}", unit=UNIT, unit_name="tokens",
+        #                   scalings=(2, 3), n_hashes=NUM_HASHES, base_block=1, # 1 unit = 512 tokens; the trace's floor, so bucket 1 already reaches 8,192 tokens
+        #                   thresholds=(0.4, 0.5, 0.6), coverages=(1.0, 0.75),
+        #                   capacities=(1_000, 10_000, 100_000, 1_000_000))
